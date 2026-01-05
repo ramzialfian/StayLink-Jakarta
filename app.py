@@ -3,13 +3,13 @@ from rdflib import Graph
 import os
 import streamlit as st
 
-# Inisialisasi Flask dengan static_url_path agar gambar terbaca langsung
+# Inisialisasi Flask dengan static_url_path agar folder static terbaca
 app = Flask(__name__, static_url_path='/static')
 
 def get_staylink_data():
     g = Graph()
     try:
-        # Memastikan file staylink.ttl terbaca dari folder utama
+        # Memastikan file staylink.ttl terbaca dari folder utama repo
         g.parse("staylink.ttl", format="turtle")
     except Exception as e:
         print(f"Error loading RDF: {e}")
@@ -33,7 +33,7 @@ def get_index_html():
     return render_template('index.html', hotels=hotels, wisata=wisata)
 
 def get_detail_html(nama, kategori):
-    # DATA HARGA LENGKAP 22 AKOMODASI - TIDAK ADA YANG DIKURANGI
+    # DATA HARGA LENGKAP 22 AKOMODASI (TIDAK ADA YANG DIKURANGI)
     hotel_prices = {
         "cozrooms near mrt, plaza indonesia, and grand indonesia": "200.000",
         "grand hyatt jakarta": "2.500.000",
@@ -62,7 +62,7 @@ def get_detail_html(nama, kategori):
         "lobster homestay pulau untungjawa": "250.000"
     }
 
-    # DATA KOORDINAT LENGKAP 20 LOKASI - TIDAK ADA YANG DIKURANGI
+    # DATA KOORDINAT LENGKAP 20 LOKASI (UNTUK MAPS DETAIL)
     hotel_coords = {
         "jw marriott hotel jakarta": {"lat": "-6.227028", "long": "106.826940"},
         "hotel indonesia kempinski": {"lat": "-6.195579570620385", "long": "106.82228453602718"},
@@ -130,11 +130,9 @@ params = st.query_params
 
 if "page" in params and params["page"] == "detail":
     with app.app_context():
-        # Render Halaman Detail dengan data koordinat lengkap
         content = get_detail_html(params.get("nama"), params.get("kat"))
         st.components.v1.html(content, height=1200, scrolling=True)
 else:
     with app.app_context():
-        # Render Halaman Beranda
         content = get_index_html()
         st.components.v1.html(content, height=1500, scrolling=True)
