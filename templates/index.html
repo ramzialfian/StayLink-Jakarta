@@ -84,7 +84,7 @@
                             <h6 class="fw-bold mb-1">{{ r.namaAkomodasi }}</h6>
                             <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
                                 <div><small class="text-muted d-block" style="font-size: 0.65rem;">Mulai dari</small><span class="price-text">Rp ---</span></div>
-                                <button class="btn btn-pesan btn-sm" onclick="event.stopPropagation(); window.location.href='/detail/{{ r.namaAkomodasi }}/{{ r.kategori }}'">Pesan</button>
+                                <button class="btn btn-pesan btn-sm" onclick="event.stopPropagation(); window.parent.location.href='/?page=detail&nama={{ r.namaAkomodasi }}&kat={{ r.kategori }}'">Pesan</button>
                             </div>
                         </div>
                     </div>
@@ -137,19 +137,16 @@
         const minI = document.getElementById('minPriceInput');
         const maxI = document.getElementById('maxPriceInput');
 
-        // FUNGSI UPDATE MAPS (SMART SEARCH)
         function updateMap(query) {
             const mapContainer = document.getElementById('mapContainer');
             const mapFrame = document.getElementById('googleMap');
             const inputKey = query.toLowerCase().trim();
             mapContainer.style.display = "block";
 
-            // Prioritas 1: Jika nama ada di dataset koordinat hotel
             if (hotelCoordinates[inputKey]) {
                 const coords = hotelCoordinates[inputKey];
                 mapFrame.src = `https://maps.google.com/maps?q=${coords.lat},${coords.long}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
             } 
-            // Prioritas 2: Pencarian Umum (Seperti Maps Biasa)
             else {
                 mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
             }
@@ -188,9 +185,8 @@
                     } else i.style.display = "none";
                 });
                 
-                // Jika user mengetik lokasi yang sama sekali tidak ada di kategori wisata
                 if (vW === 0) {
-                    updateMap(mQ); // Tetap cari lokasi tersebut di peta
+                    updateMap(mQ);
                     document.getElementById('noResults').style.display = "none";
                 } else {
                     document.getElementById('noResults').style.display = "none";
