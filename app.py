@@ -121,7 +121,7 @@ def detail(nama, kategori):
 # --- KONFIGURASI STREAMLIT (TIDAK MENGUBAH LOGIKA FLASK) ---
 
 def run_flask():
-    app.run(port=5000, debug=False, use_reloader=False)
+    app.run(port=8501, debug=False, use_reloader=False)
 
 if "flask_thread" not in st.session_state:
     thread = threading.Thread(target=run_flask)
@@ -141,4 +141,4 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Memanggil Iframe dari Localhost Flask ke URL Streamlit
-st.components.v1.iframe("http://127.0.0.1:5000", height=1000, scrolling=True)
+st.components.v1.iframe("http://127.0.0.1:8501", height=1000, scrolling=True)
