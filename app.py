@@ -1,9 +1,10 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template
 from rdflib import Graph
 import os
 import streamlit as st
 
-app = Flask(__name__)
+# Inisialisasi Flask dengan static_url_path agar gambar terbaca langsung
+app = Flask(__name__, static_url_path='/static')
 
 def get_staylink_data():
     g = Graph()
@@ -32,7 +33,7 @@ def get_index_html():
     return render_template('index.html', hotels=hotels, wisata=wisata)
 
 def get_detail_html(nama, kategori):
-    # DATA HARGA 22 AKOMODASI LENGKAP - TIDAK ADA YANG DIKURANGI
+    # DATA HARGA LENGKAP 22 AKOMODASI - TIDAK ADA YANG DIKURANGI
     hotel_prices = {
         "cozrooms near mrt, plaza indonesia, and grand indonesia": "200.000",
         "grand hyatt jakarta": "2.500.000",
@@ -61,7 +62,7 @@ def get_detail_html(nama, kategori):
         "lobster homestay pulau untungjawa": "250.000"
     }
 
-    # DATA KOORDINAT LENGKAP - UNTUK MAPS DI HALAMAN DETAIL
+    # DATA KOORDINAT LENGKAP 20 LOKASI - TIDAK ADA YANG DIKURANGI
     hotel_coords = {
         "jw marriott hotel jakarta": {"lat": "-6.227028", "long": "106.826940"},
         "hotel indonesia kempinski": {"lat": "-6.195579570620385", "long": "106.82228453602718"},
@@ -117,13 +118,9 @@ def get_detail_html(nama, kategori):
     price = hotel_prices.get(nama_lower, "---")
     
     return render_template('detail.html', 
-                           nama_hotel=nama, 
-                           harga=price, 
-                           facilities=facilities, 
-                           kategori=kategori, 
-                           image_file=image_file, 
-                           lat=coords['lat'], 
-                           long=coords['long'])
+                           nama_hotel=nama, harga=price, facilities=facilities, 
+                           kategori=kategori, image_file=image_file, 
+                           lat=coords['lat'], long=coords['long'])
 
 # --- KONFIGURASI STREAMLIT ---
 st.set_page_config(page_title="StayLink Jakarta", layout="wide")
@@ -133,8 +130,8 @@ params = st.query_params
 
 if "page" in params and params["page"] == "detail":
     with app.app_context():
-        # Render Halaman Detail dengan data koordinat
-        content = get_detail_html(params.get("nama", "Hotel"), params.get("kat", "Hotel"))
+        # Render Halaman Detail dengan data koordinat lengkap
+        content = get_detail_html(params.get("nama"), params.get("kat"))
         st.components.v1.html(content, height=1200, scrolling=True)
 else:
     with app.app_context():
