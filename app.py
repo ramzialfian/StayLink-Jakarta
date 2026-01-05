@@ -1,13 +1,16 @@
-from flask import flask, render_template, url_for
+from flask import Flask, render_template, url_for
 from rdflib import Graph
 import os
 import streamlit as st
+import threading
 
+# --- INISIALISASI FLASK ---
 app = Flask(__name__)
 
 def get_staylink_data():
     g = Graph()
     try:
+        # Pastikan file staylink.ttl ada di root folder github Anda
         g.parse("staylink.ttl", format="turtle") 
     except Exception as e:
         print(f"Error loading RDF: {e}")
@@ -90,10 +93,8 @@ def detail(nama, kategori):
     img_dir = os.path.join(app.root_path, 'static/images')
     image_file = "no_image.jpg"
     
-    # Ambil koordinat jika ada, default ke pusat Jakarta jika tidak ditemukan
     coords = hotel_coords.get(nama_lower, {"lat": "-6.2088", "long": "106.8456"})
 
-    # LOGIKA PENCARIAN GAMBAR
     full_name = nama_lower.replace(" jakarta", "").replace(" hotel", "").replace(" & residence", "").replace(" ", "_").replace(",", "")
     
     extensions = ['.jpeg', '.jpg', '.webp', '.png', '.JPG']
@@ -129,5 +130,31 @@ def detail(nama, kategori):
                            lat=coords['lat'],
                            long=coords['long'])
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# --- KONFIGURASI STREAMLIT (WADAH) ---
+
+def run_flask():
+    # Jalankan Flask pada port 5000 tanpa reloader (agar tidak bentrok dengan thread)
+    app.run(port=5000, debug=False, use_reloader=False)
+
+# Memulai Flask di background thread jika belum berjalan
+if "flask_thread" not in st.session_state:
+    thread = threading.Thread(target=run_flask)
+    thread.daemon = True
+    thread.start()
+    st.session_state.flask_thread = True
+
+# Tampilan Streamlit
+st.set_page_config(page_title="StayLink Jakarta", layout="wide")
+
+# CSS untuk membuat iframe memenuhi layar dan menghilangkan margin default streamlit
+st.markdown("""
+    <style>
+    .block-container { padding: 0rem; }
+    iframe { border: none; width: 100%; height: 100vh; }
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+    """, unsafe_allow_html=True)
+
+# Menampilkan aplikasi Flask via Iframe
+st.components.v1.iframe("http://127.0.0.1:5000", height=1000, scrolling=True)
