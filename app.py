@@ -130,9 +130,11 @@ params = st.query_params
 
 if "page" in params and params["page"] == "detail":
     with app.app_context():
+        # Render Halaman Detail dengan data koordinat lengkap
         content = get_detail_html(params.get("nama"), params.get("kat"))
         st.components.v1.html(content, height=1200, scrolling=True)
 else:
     with app.app_context():
+        # Render Halaman Beranda
         content = get_index_html()
         st.components.v1.html(content, height=1500, scrolling=True)
