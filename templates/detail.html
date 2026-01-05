@@ -19,15 +19,13 @@
 </head>
 <body>
     <div class="container py-5">
-        <div class="back-link" onclick="window.parent.location.href='/'"><i class="bi bi-arrow-left me-2"></i>Beranda</div>
+        <div class="back-link" onclick="window.parent.location.href='/'"><i class="bi bi-arrow-left me-2"></i>Kembali ke Beranda</div>
         <div class="card detail-card shadow-lg"><div class="row g-5">
             <div class="col-lg-5">
                 <div class="img-container">
-                    <img src="{{ url_for('static', filename='images/' + image_file) }}" onerror="this.src='https://placehold.co/600x400?text=No+Image';">
+                    <img src="/static/images/{{ image_file }}" onerror="this.src='https://placehold.co/600x400?text=No+Image';">
                 </div>
-                <div class="map-section">
-                    <iframe width="100%" height="100%" src="https://maps.google.com/maps?q={{ lat }},{{ long }}&hl=id&z=15&output=embed"></iframe>
-                </div>
+                <div class="map-section"><iframe width="100%" height="100%" src="https://maps.google.com/maps?q={{ lat }},{{ long }}&hl=id&z=15&output=embed"></iframe></div>
             </div>
             <div class="col-lg-7">
                 <h1 class="hotel-title mb-1">{{ nama_hotel }}</h1>

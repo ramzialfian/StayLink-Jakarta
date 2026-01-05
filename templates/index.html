@@ -10,8 +10,9 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #43d1a2; }
         .hero-header { 
             background: linear-gradient(rgba(30, 41, 59, 0.7), rgba(30, 41, 59, 0.7)), 
-                        url("{{ url_for('static', filename='monas.jpg') }}"); 
-            background-size: cover; background-position: center; color: white; padding: 60px 0 100px; border-radius: 0 0 40px 40px; 
+                        url('/static/monas.jpg'); /* Jalur langsung agar tidak RuntimeError */
+            background-size: cover; background-position: center; color: white; 
+            padding: 60px 0 100px; border-radius: 0 0 40px 40px; 
         }
         .card-main { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: white; padding: 25px; margin-top: -60px; }
         .filter-sidebar { background: #f8f9fa; border-radius: 15px; padding: 20px; border: 1px solid #eee; }
@@ -75,21 +76,19 @@
     </div></div></main>
     <script>
         const hotelPrices = { "grand hyatt jakarta": 2500000, "hotel indonesia kempinski": 2500000, "ibis styles tanah abang": 600000, "jw marriott hotel jakarta": 1700000, "mercure jakarta cikini": 750000, "moxy jakarta kemang": 600000, "the sultan hotel & residence": 1500000, "aston priority simatupang": 600000, "favehotel tanah abang": 400000, "grand mercure kemayoran": 750000, "homestay zahra pulau harapan": 300000, "homestay 2 putra pulau harapan": 350000, "homestay emen pulau harapan": 300000, "homestay anam pulau harapan": 300000, "homestay goby pulau harapan": 330000, "homestay amarudin pulau harapan": 300000, "homestay koja bahrudin pulau harapan": 250000, "homestay melli surya pulau harapan": 250000, "homestay marisa muridi pulau harapan": 330000, "lobster homestay pulau untungjawa": 250000, "jambuluwuk heritage menteng suites": 350000, "legreen suite tondano pejompongan": 300000, "cozrooms near mrt, plaza indonesia, and grand indonesia": 200000, "lugano arte": 280000, "residence 100": 230000 };
-        const wisataDetails = { "sejarah, kota tua, fotografi": ["Museum Fatahillah", "Museum Seni Rupa"], "kuliner jalanan, makanan lokal": ["Sabang", "Monas"], "taman kota, outdoor, jogging": ["Hutan GBK", "Tebet Eco Park"], "seni kontemporer, galeri": ["Museum MACAN", "Galeri Nasional"], "akomodasi keluarga, wisata anak": ["KidZania", "Faunaland Ancol", "TMII"], "wisata air, pantai (pulau seribu)": ["Pulau Harapan", "Ancol"], "arsitektur modern, gedung pencakar langit": ["Skydeck Sarinah", "Thamrin Nine"] };
+        const wisataDetails = { "sejarah, kota tua, fotografi": ["Museum Fatahillah", "Museum Seni Rupa"], "kuliner jalanan, makanan lokal": ["Sabang", "Monas"], "taman kota, outdoor, jogging": ["Hutan GBK", "Tebet Eco Park"], "seni kontemporer, galeri": ["Museum MACAN", "Galeri Nasional"], "akomodasi keluarga, wisata anak": ["KidZania", "Ancol", "TMII"], "wisata air, pantai (pulau seribu)": ["Pulau Harapan", "Ancol"], "arsitektur modern, gedung pencakar langit": ["Sarinah", "Thamrin Nine"] };
         const slider = document.getElementById('priceSlider'); const minI = document.getElementById('minPriceInput'); const maxI = document.getElementById('maxPriceInput');
         function applyFilters() {
-            const mQ = document.getElementById('minatSearch').value.toLowerCase().trim();
-            const hQ = document.getElementById('hotelSearch').value.toLowerCase().trim();
+            const mQ = document.getElementById('minatSearch').value.toLowerCase().trim(); const hQ = document.getElementById('hotelSearch').value.toLowerCase().trim();
             const minV = parseInt(minI.value) || 0; const maxV = parseInt(maxI.value) || 2500000;
-            const sT = Array.from(document.querySelectorAll('.t-filter:checked')).map(c => c.value);
-            const sS = Array.from(document.querySelectorAll('.s-filter:checked')).map(c => c.value);
+            const sT = Array.from(document.querySelectorAll('.t-filter:checked')).map(c => c.value); const sS = Array.from(document.querySelectorAll('.s-filter:checked')).map(c => c.value);
             slider.style.background = `linear-gradient(to right, #0194f3 ${(slider.value/slider.max)*100}%, #dee2e6 ${(slider.value/slider.max)*100}%)`;
             if (mQ !== "") {
                 document.getElementById('hotelSection').style.display = "none"; document.getElementById('wisataSection').style.display = "block";
                 let vW = 0; document.querySelectorAll('.w-item').forEach(i => {
                     const k = i.dataset.minat; const l = wisataDetails[k] || [];
                     if (k.includes(mQ) || l.some(t => t.toLowerCase().includes(mQ))) {
-                        i.style.display = "block"; vW++; i.querySelector('.wisata-content-list').innerHTML = l.map(x => `<div class="wisata-list-item">• ${x}</div>`).join('');
+                        i.style.display = "block"; vW++; i.querySelector('.wisata-content-list').innerHTML = l.map(x => `• ${x}`).join('');
                     } else i.style.display = "none";
                 });
                 document.getElementById('noResults').style.display = vW === 0 ? "block" : "none";
