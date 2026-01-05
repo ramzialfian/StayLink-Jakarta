@@ -3,3 +3,4 @@ rdflib
 Graph
 os
 google-play-scraper
+streamlit
