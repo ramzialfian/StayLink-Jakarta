@@ -1,19 +1,18 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 from rdflib import Graph
 import os
 import streamlit as st
 
-# --- INISIALISASI FLASK ---
 app = Flask(__name__)
 
 def get_staylink_data():
     g = Graph()
     try:
-        # Pastikan file staylink.ttl ada di folder utama repo GitHub Anda
-        g.parse("staylink.ttl", format="turtle") 
+        # Memastikan file staylink.ttl terbaca dari folder utama
+        g.parse("staylink.ttl", format="turtle")
     except Exception as e:
         print(f"Error loading RDF: {e}")
-    
+
     q_hotel = """
     PREFIX schema: <http://schema.org/>
     SELECT ?namaAkomodasi ?rating ?kategori
@@ -28,41 +27,41 @@ def get_staylink_data():
     q_wisata = "PREFIX pref: <http://example.com/preference#> SELECT DISTINCT ?minat WHERE { ?u pref:likes ?minat . }"
     return g.query(q_hotel), g.query(q_wisata)
 
-# Fungsi render halaman index
 def get_index_html():
     hotels, wisata = get_staylink_data()
     return render_template('index.html', hotels=hotels, wisata=wisata)
 
-# Fungsi render halaman detail
 def get_detail_html(nama, kategori):
+    # DATA HARGA 22 AKOMODASI LENGKAP - TIDAK ADA YANG DIKURANGI
     hotel_prices = {
         "cozrooms near mrt, plaza indonesia, and grand indonesia": "200.000",
-        "grand hyatt jakarta": "2.500.000", 
+        "grand hyatt jakarta": "2.500.000",
         "hotel indonesia kempinski": "2.500.000",
-        "ibis styles tanah abang": "600.000", 
+        "ibis styles tanah abang": "600.000",
         "jw marriott hotel jakarta": "1.700.000",
-        "jambuluwuk heritage menteng suites": "350.000", 
+        "jambuluwuk heritage menteng suites": "350.000",
         "legreen suite tondano pejompongan": "300.000",
-        "lugano arte": "280.000", 
-        "mercure jakarta cikini": "750.000", 
+        "lugano arte": "280.000",
+        "mercure jakarta cikini": "750.000",
         "moxy jakarta kemang": "600.000",
-        "residence 100": "230.000", 
+        "residence 100": "230.000",
         "the sultan hotel & residence": "1.500.000",
         "aston priority simatupang": "600.000",
         "favehotel tanah abang": "400.000",
         "grand mercure kemayoran": "750.000",
-        "homestay 2 putra pulau harapan": "350.000", 
+        "homestay 2 putra pulau harapan": "350.000",
         "homestay amarudin pulau harapan": "300.000",
-        "homestay anam pulau harapan": "300.000", 
+        "homestay anam pulau harapan": "300.000",
         "homestay emen pulau harapan": "300.000",
-        "homestay goby pulau harapan": "330.000", 
+        "homestay goby pulau harapan": "330.000",
         "homestay marisa muridi pulau harapan": "330.000",
-        "homestay melli surya pulau harapan": "250.000", 
+        "homestay melli surya pulau harapan": "250.000",
         "homestay zahra pulau harapan": "300.000",
-        "homestay koja bahrudin pulau harapan": "250.000", 
+        "homestay koja bahrudin pulau harapan": "250.000",
         "lobster homestay pulau untungjawa": "250.000"
     }
 
+    # DATA KOORDINAT LENGKAP - UNTUK MAPS DI HALAMAN DETAIL
     hotel_coords = {
         "jw marriott hotel jakarta": {"lat": "-6.227028", "long": "106.826940"},
         "hotel indonesia kempinski": {"lat": "-6.195579570620385", "long": "106.82228453602718"},
@@ -91,8 +90,8 @@ def get_detail_html(nama, kategori):
     image_file = "no_image.jpg"
     coords = hotel_coords.get(nama_lower, {"lat": "-6.2088", "long": "106.8456"})
     
+    # LOGIKA PENCARIAN GAMBAR ASLI ANDA
     full_name = nama_lower.replace(" jakarta", "").replace(" hotel", "").replace(" & residence", "").replace(" ", "_").replace(",", "")
-    
     extensions = ['.jpeg', '.jpg', '.webp', '.png', '.JPG']
     for ext in extensions:
         if os.path.exists(os.path.join(img_dir, full_name + ext)):
@@ -101,36 +100,44 @@ def get_detail_html(nama, kategori):
         elif "aston" in full_name and os.path.exists(os.path.join(img_dir, "aston_priority" + ext)):
             image_file = "aston_priority" + ext
             break
+        elif "grand_mercure" in full_name and os.path.exists(os.path.join(img_dir, "grand_mercure" + ext)):
+            image_file = "grand_mercure" + ext
+            break
+        elif "mercure" in full_name and os.path.exists(os.path.join(img_dir, "mercure" + ext)):
+            image_file = "mercure" + ext
+            break
+        elif "moxy" in full_name and os.path.exists(os.path.join(img_dir, "moxy" + ext)):
+            image_file = "moxy" + ext
+            break
+        elif "fave" in full_name and os.path.exists(os.path.join(img_dir, "fave_hotel" + ext)):
+            image_file = "fave_hotel" + ext
+            break
 
     facilities = ["Free Wi-Fi", "Swimming Pool", "Fitness Center", "Restaurant", "Parking Space", "24-Hour Room Service"] if kategori == "Hotel" else ["Free Wi-Fi", "AC", "Cafe", "24-Hour Room Service", "Parking Space"]
     price = hotel_prices.get(nama_lower, "---")
     
     return render_template('detail.html', 
-                           nama_hotel=nama, harga=price, facilities=facilities, 
-                           kategori=kategori, image_file=image_file,
-                           lat=coords['lat'], long=coords['long'])
+                           nama_hotel=nama, 
+                           harga=price, 
+                           facilities=facilities, 
+                           kategori=kategori, 
+                           image_file=image_file, 
+                           lat=coords['lat'], 
+                           long=coords['long'])
 
 # --- KONFIGURASI STREAMLIT ---
 st.set_page_config(page_title="StayLink Jakarta", layout="wide")
+st.markdown("<style>.block-container { padding: 0rem; } header, footer {visibility: hidden;}</style>", unsafe_allow_html=True)
 
-# CSS untuk menyembunyikan header/footer Streamlit
-st.markdown("""
-    <style>
-    .block-container { padding: 0rem; }
-    header, footer {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
+params = st.query_params
 
-# Logika Navigasi Halaman
-query_params = st.query_params
-
-if "page" in query_params and query_params["page"] == "detail":
-    nama_req = query_params.get("nama", "Hotel")
-    kat_req = query_params.get("kat", "Hotel")
+if "page" in params and params["page"] == "detail":
     with app.app_context():
-        content = get_detail_html(nama_req, kat_req)
+        # Render Halaman Detail dengan data koordinat
+        content = get_detail_html(params.get("nama", "Hotel"), params.get("kat", "Hotel"))
         st.components.v1.html(content, height=1200, scrolling=True)
 else:
     with app.app_context():
+        # Render Halaman Beranda
         content = get_index_html()
         st.components.v1.html(content, height=1500, scrolling=True)
