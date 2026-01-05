@@ -10,7 +10,7 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #43d1a2; }
         .hero-header { 
             background: linear-gradient(rgba(30, 41, 59, 0.7), rgba(30, 41, 59, 0.7)), 
-                        url('/static/monas.jpg'); /* Link langsung agar Monas muncul */
+                        url('/static/monas.jpg'); /* Jalur Monas diperbaiki agar muncul di Cloud */
             background-size: cover; background-position: center; color: white; padding: 60px 0 100px; border-radius: 0 0 40px 40px; 
         }
         .card-main { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: white; padding: 25px; margin-top: -60px; }
@@ -103,7 +103,7 @@
             }
         }
         slider.addEventListener('input', () => { maxI.value = slider.value; applyFilters(); });
-        document.querySelectorAll('input, .t-filter, .s-filter').forEach(e => e.addEventListener('change', applyFilters));
+        document.querySelectorAll('input, .t-filter, .s-filter').forEach(e => e.addEventListener('input', applyFilters));
         applyFilters();
     </script>
 </body>
