@@ -2,3 +2,4 @@ flask
 rdflib
 Graph
 os
+google-play-scraper
