@@ -10,7 +10,6 @@ app = Flask(__name__)
 def get_staylink_data():
     g = Graph()
     try:
-        # Pastikan file staylink.ttl ada di root folder github Anda
         g.parse("staylink.ttl", format="turtle") 
     except Exception as e:
         print(f"Error loading RDF: {e}")
@@ -36,7 +35,6 @@ def index():
 
 @app.route('/detail/<nama>/<kategori>')
 def detail(nama, kategori):
-    # DATA HARGA 22 AKOMODASI LENGKAP
     hotel_prices = {
         "cozrooms near mrt, plaza indonesia, and grand indonesia": "200.000",
         "grand hyatt jakarta": "2.500.000", 
@@ -65,36 +63,33 @@ def detail(nama, kategori):
         "lobster homestay pulau untungjawa": "250.000"
     }
 
-    # DATA KOORDINAT DARI DATASET TTL
     hotel_coords = {
-        "jw marriott hotel jakarta": {"lat": "-6.227028", "long": "106.826940"},
-        "hotel indonesia kempinski": {"lat": "-6.195579570620385", "long": "106.82228453602718"},
-        "grand hyatt jakarta": {"lat": "-6.1937531", "long": "106.820341"},
-        "mercure jakarta cikini": {"lat": "-6.196310", "long": "106.841760"},
-        "grand mercure kemayoran": {"lat": "-6.162690", "long": "106.849910"},
-        "the sultan hotel & residence": {"lat": "-6.223300", "long": "106.808200"},
-        "ibis styles tanah abang": {"lat": "-6.185910", "long": "106.815050"},
-        "aston priority simatupang": {"lat": "-6.291240", "long": "106.821620"},
-        "favehotel tanah abang": {"lat": "-6.186000", "long": "106.816100"},
-        "moxy jakarta kemang": {"lat": "-6.267190", "long": "106.812240"},
-        "lobster homestay pulau untungjawa": {"lat": "-6.0385", "long": "106.8790"},
-        "homestay anam pulau harapan": {"lat": "-5.5780", "long": "106.5710"},
-        "homestay emen pulau harapan": {"lat": "-5.5785", "long": "106.5712"},
-        "homestay koja bahrudin pulau harapan": {"lat": "-5.5783", "long": "106.5715"},
-        "homestay marisa muridi pulau harapan": {"lat": "-5.5781", "long": "106.5714"},
-        "homestay zahra pulau harapan": {"lat": "-5.5779", "long": "106.5711"},
-        "homestay melli surya pulau harapan": {"lat": "-5.5777", "long": "106.5713"},
-        "homestay 2 putra pulau harapan": {"lat": "-5.5775", "long": "106.5715"},
-        "homestay goby pulau harapan": {"lat": "-5.5773", "long": "106.5716"},
-        "homestay amarudin pulau harapan": {"lat": "-5.5771", "long": "106.5717"}
+        "jw marriott hotel jakarta": { lat: "-6.227028", long: "106.826940" },
+        "hotel indonesia kempinski": { lat: "-6.195579570620385", long: "106.82228453602718" },
+        "grand hyatt jakarta": { lat: "-6.1937531", long: "106.820341" },
+        "mercure jakarta cikini": { lat: "-6.196310", long: "106.841760" },
+        "grand mercure kemayoran": { lat: "-6.162690", long: "106.849910" },
+        "the sultan hotel & residence": { lat: "-6.223300", long: "106.808200" },
+        "ibis styles tanah abang": { lat: "-6.185910", long: "106.815050" },
+        "aston priority simatupang": { lat: "-6.291240", long: "106.821620" },
+        "favehotel tanah abang": { lat: "-6.186000", long: "106.816100" },
+        "moxy jakarta kemang": { lat: "-6.267190", long: "106.812240" },
+        "lobster homestay pulau untungjawa": { lat: "-6.0385", long: "106.8790" },
+        "homestay anam pulau harapan": { lat: "-5.5780", long: "106.5710" },
+        "homestay emen pulau harapan": { lat: "-5.5785", long: "106.5712" },
+        "homestay koja bahrudin pulau harapan": { lat: "-5.5783", long: "106.5715" },
+        "homestay marisa muridi pulau harapan": { lat: "-5.5781", long: "106.5714" },
+        "homestay zahra pulau harapan": { lat: "-5.5779", long: "106.5711" },
+        "homestay melli surya pulau harapan": { lat: "-5.5777", long: "106.5713" },
+        "homestay 2 putra pulau harapan": { lat: "-5.5775", long: "106.5715" },
+        "homestay goby pulau harapan": { lat: "-5.5773", long: "106.5716" },
+        "homestay amarudin pulau harapan": { lat: "-5.5771", long: "106.5717" }
     }
     
     nama_lower = nama.lower()
     img_dir = os.path.join(app.root_path, 'static/images')
     image_file = "no_image.jpg"
-    
     coords = hotel_coords.get(nama_lower, {"lat": "-6.2088", "long": "106.8456"})
-
     full_name = nama_lower.replace(" jakarta", "").replace(" hotel", "").replace(" & residence", "").replace(" ", "_").replace(",", "")
     
     extensions = ['.jpeg', '.jpg', '.webp', '.png', '.JPG']
@@ -121,32 +116,21 @@ def detail(nama, kategori):
     facilities = ["Free Wi-Fi", "Swimming Pool", "Fitness Center", "Restaurant", "Parking Space", "24-Hour Room Service"] if kategori == "Hotel" else ["Free Wi-Fi", "AC", "Cafe", "24-Hour Room Service", "Parking Space"]
     price = hotel_prices.get(nama_lower, "---")
     
-    return render_template('detail.html', 
-                           nama_hotel=nama, 
-                           harga=price, 
-                           facilities=facilities, 
-                           kategori=kategori, 
-                           image_file=image_file,
-                           lat=coords['lat'],
-                           long=coords['long'])
+    return render_template('detail.html', nama_hotel=nama, harga=price, facilities=facilities, kategori=kategori, image_file=image_file, lat=coords['lat'], long=coords['long'])
 
-# --- KONFIGURASI STREAMLIT (WADAH) ---
+# --- KONFIGURASI STREAMLIT (TIDAK MENGUBAH LOGIKA FLASK) ---
 
 def run_flask():
-    # Jalankan Flask pada port 5000 tanpa reloader (agar tidak bentrok dengan thread)
     app.run(port=5000, debug=False, use_reloader=False)
 
-# Memulai Flask di background thread jika belum berjalan
 if "flask_thread" not in st.session_state:
     thread = threading.Thread(target=run_flask)
     thread.daemon = True
     thread.start()
     st.session_state.flask_thread = True
 
-# Tampilan Streamlit
 st.set_page_config(page_title="StayLink Jakarta", layout="wide")
 
-# CSS untuk membuat iframe memenuhi layar dan menghilangkan margin default streamlit
 st.markdown("""
     <style>
     .block-container { padding: 0rem; }
@@ -156,5 +140,5 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Menampilkan aplikasi Flask via Iframe
+# Memanggil Iframe dari Localhost Flask ke URL Streamlit
 st.components.v1.iframe("http://127.0.0.1:5000", height=1000, scrolling=True)
