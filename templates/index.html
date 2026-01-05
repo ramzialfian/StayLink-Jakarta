@@ -10,7 +10,7 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #43d1a2; }
         .hero-header { 
             background: linear-gradient(rgba(30, 41, 59, 0.7), rgba(30, 41, 59, 0.7)), 
-                        url('/static/monas.jpg'); /* Jalur Monas diperbaiki agar muncul di Cloud */
+                        url('/static/monas.jpg'); /* JALUR LANGSUNG AGAR MONAS MUNCUL */
             background-size: cover; background-position: center; color: white; padding: 60px 0 100px; border-radius: 0 0 40px 40px; 
         }
         .card-main { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: white; padding: 25px; margin-top: -60px; }
@@ -25,6 +25,8 @@
         .price-text { color: #ff5a5f; font-weight: 700; font-size: 1.2rem; }
         .btn-pesan { background-color: #43d1a2; color: white; border: none; border-radius: 50px; padding: 6px 20px; font-weight: 600; cursor: pointer; }
         .wisata-list-item { font-size: 0.75rem; border-left: 2px solid #43d1a2; padding-left: 8px; margin-top: 5px; color: #555; text-align: left; }
+        .map-container { border-radius: 15px; overflow: hidden; margin-bottom: 25px; border: 1px solid #dee2e6; display: none; }
+        iframe { border: 0; width: 100%; height: 350px; }
     </style>
 </head>
 <body>
@@ -51,15 +53,21 @@
             </div>
         </div>
         <div class="col-lg-9">
+            <div id="mapContainer" class="map-container shadow-sm"><iframe id="googleMap" src=""></iframe></div>
             <div id="wisataSection" style="display: none;"><div id="wisataGrid" class="row g-3 mb-4">
-                {% for i in wisata %}<div class="col-md-4 w-item" data-minat="{{ i.minat.lower() }}">
-                    <div class="p-3 border rounded shadow-sm h-100 text-center" style="background: #f0fdf4;">
+                {% for i in wisata %}
+                {% if i.minat != "Shopping, Mall Mewah" and i.minat != "Nightlife, Rooftop Bar" %}
+                <div class="col-md-4 w-item" data-minat="{{ i.minat.lower() }}">
+                    <div class="p-3 border rounded shadow-sm h-100 text-center" style="background: #f0fdf4; cursor: pointer;" onclick="updateMap('{{ i.minat }}')">
                         <h6 class="fw-bold mb-1 text-dark">{{ i.minat }}</h6><div class="wisata-content-list mt-2"></div>
                     </div>
-                </div>{% endfor %}
+                </div>
+                {% endif %}
+                {% endfor %}
             </div></div>
             <div id="hotelSection"><div id="hotelGrid" class="row g-3">
-                {% for r in hotels %}<div class="col-md-6 h-item" data-name="{{ r.namaAkomodasi }}" data-type="{{ r.kategori }}" data-star="{{ r.rating if r.rating else 0 }}">
+                {% for r in hotels %}
+                <div class="col-md-6 h-item" data-name="{{ r.namaAkomodasi }}" data-type="{{ r.kategori }}" data-star="{{ r.rating if r.rating else 0 }}">
                     <div class="card hotel-card p-4 shadow-sm">
                         <span class="badge bg-light text-dark border align-self-start mb-2 small">{{ r.kategori }}</span>
                         <h6 class="fw-bold mb-1">{{ r.namaAkomodasi }}</h6>
@@ -75,8 +83,12 @@
     </div></div></main>
     <script>
         const hotelPrices = { "grand hyatt jakarta": 2500000, "hotel indonesia kempinski": 2500000, "ibis styles tanah abang": 600000, "jw marriott hotel jakarta": 1700000, "mercure jakarta cikini": 750000, "moxy jakarta kemang": 600000, "the sultan hotel & residence": 1500000, "aston priority simatupang": 600000, "favehotel tanah abang": 400000, "grand mercure kemayoran": 750000, "homestay zahra pulau harapan": 300000, "homestay 2 putra pulau harapan": 350000, "homestay emen pulau harapan": 300000, "homestay anam pulau harapan": 300000, "homestay goby pulau harapan": 330000, "homestay amarudin pulau harapan": 300000, "homestay koja bahrudin pulau harapan": 250000, "homestay melli surya pulau harapan": 250000, "homestay marisa muridi pulau harapan": 330000, "lobster homestay pulau untungjawa": 250000, "jambuluwuk heritage menteng suites": 350000, "legreen suite tondano pejompongan": 300000, "cozrooms near mrt, plaza indonesia, and grand indonesia": 200000, "lugano arte": 280000, "residence 100": 230000 };
-        const wisataDetails = { "sejarah, kota tua, fotografi": ["Museum Fatahillah", "Museum Seni Rupa"], "kuliner jalanan, makanan lokal": ["Sabang", "Monas"], "taman kota, outdoor, jogging": ["Hutan GBK", "Tebet Eco Park"], "seni kontemporer, galeri": ["Museum MACAN", "Galeri Nasional"], "akomodasi keluarga, wisata anak": ["KidZania", "Ancol", "TMII"], "wisata air, pantai (pulau seribu)": ["Pulau Harapan", "Ancol"], "arsitektur modern, gedung pencakar langit": ["Skydeck Sarinah", "Thamrin Nine"] };
+        const wisataDetails = { "sejarah, kota tua, fotografi": ["Museum Fatahillah (Rp5.000)", "Museum Seni Rupa"], "kuliner jalanan, makanan lokal": ["Sabang", "Monas"], "taman kota, outdoor, jogging": ["Hutan GBK", "Tebet Eco Park"], "seni kontemporer, galeri": ["Museum MACAN", "Galeri Nasional"], "akomodasi keluarga, wisata anak": ["KidZania", "Ancol"], "wisata air, pantai (pulau seribu)": ["Pulau Harapan", "Ancol"], "arsitektur modern, gedung pencakar langit": ["Skydeck Sarinah", "Thamrin Nine"] };
         const slider = document.getElementById('priceSlider'); const minI = document.getElementById('minPriceInput'); const maxI = document.getElementById('maxPriceInput');
+        function updateMap(query) { 
+            const mc = document.getElementById('mapContainer'); const mf = document.getElementById('googleMap'); mc.style.display = "block";
+            mf.src = `https://www.google.com/maps?q=${encodeURIComponent(query + " Jakarta")}&output=embed`;
+        }
         function applyFilters() {
             const mQ = document.getElementById('minatSearch').value.toLowerCase().trim(); const hQ = document.getElementById('hotelSearch').value.toLowerCase().trim();
             const minV = parseInt(minI.value) || 0; const maxV = parseInt(maxI.value) || 2500000;
@@ -90,9 +102,9 @@
                         i.style.display = "block"; vW++; i.querySelector('.wisata-content-list').innerHTML = l.map(x => `<div class="wisata-list-item">• ${x}</div>`).join('');
                     } else i.style.display = "none";
                 });
-                document.getElementById('noResults').style.display = vW === 0 ? "block" : "none";
+                if (vW === 1) updateMap(mQ);
             } else {
-                document.getElementById('wisataSection').style.display = "none"; document.getElementById('hotelSection').style.display = "block";
+                document.getElementById('wisataSection').style.display = "none"; document.getElementById('mapContainer').style.display = "none"; document.getElementById('hotelSection').style.display = "block";
                 let vH = 0; document.querySelectorAll('.h-item').forEach(i => {
                     const n = i.dataset.name.toLowerCase().trim(); const p = hotelPrices[n] || 0;
                     i.querySelector('.price-text').innerText = p > 0 ? "Rp " + p.toLocaleString('id-ID') : "Rp ---";
